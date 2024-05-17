@@ -61,6 +61,8 @@ class BookController extends Controller
 
     public function attachBookToUser(Request $request, $userId, $bookId)
     {
+        // print_r($request->input('name'));
+        // print_r($request->all());
         $user = User::findOrFail($userId);
         $book = Book::findOrFail($bookId);
 
@@ -82,7 +84,31 @@ class BookController extends Controller
     public function getUserBooks($userId)
     {
         $user = User::with('books')->findOrFail($userId);
-
         return response()->json($user->books, 200);
+    }
+
+    public function getUsersWithBookId($bookId)
+    {
+        $book = Book::with('users')->findOrFail($bookId);
+        return response()->json($book->users);
+    }
+
+    public function getBooksWithUserCounts()
+    {
+        $books = Book::getBooksAndUserCounts();
+        return response()->json($books);
+    }
+    
+    public function getUsersWithSameBook($bookId)
+    {
+        $book = Book::findOrFail($bookId);
+        $usersCount = User::whereHas('books', function ($query) use ($bookId) {
+            $query->where('book_id', $bookId);
+        })->count();
+
+        return response()->json([
+            'book' => $book,
+            'users_count' => $usersCount,
+        ]);
     }
 }

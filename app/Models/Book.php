@@ -22,4 +22,18 @@ class Book extends Model
         return $this->belongsToMany(user::class);
     }
 
+    public static function getBooksAndUserCounts()
+    {
+        return self::withCount('users')->get()->map(function($book) {
+            return [
+                'id' => $book->id,
+                'title' => $book->title,
+                'author' => $book->author,
+                'isbn' => $book->isbn,
+                'published_year' => $book->published_year,
+                'users' => $book->users_count
+            ];
+        });
+    }
+
 }   
