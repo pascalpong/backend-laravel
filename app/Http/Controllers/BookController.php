@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class BookController extends Controller
@@ -30,7 +31,6 @@ class BookController extends Controller
         ]);
 
         $book = Book::create($validatedData);
-
         return response()->json($book, 201);
     }
 
@@ -57,5 +57,32 @@ class BookController extends Controller
         Book::destroy($id);
 
         return response()->json(null, 204);
+    }
+
+    public function attachBookToUser(Request $request, $userId, $bookId)
+    {
+        $user = User::findOrFail($userId);
+        $book = Book::findOrFail($bookId);
+
+        $user->books()->attach($book);
+
+        return response()->json(['message' => 'Book attached to user successfully'], 200);
+    }
+
+    public function detachBookFromUser(Request $request, $userId, $bookId)
+    {
+        $user = User::findOrFail($userId);
+        $book = Book::findOrFail($bookId);
+
+        $user->books()->detach($book);
+
+        return response()->json(['message' => 'Book detached from user successfully'], 200);
+    }
+
+    public function getUserBooks($userId)
+    {
+        $user = User::with('books')->findOrFail($userId);
+
+        return response()->json($user->books, 200);
     }
 }
