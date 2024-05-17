@@ -49,9 +49,4 @@ class User extends Authenticatable
         return $this->belongsToMany(Book::class);
     }
 
-    public function countSameBooks($bookId)
-    {
-        return $this->books()->where('book_id', $bookId)->count();
-    }
-
 }
